@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <style>
+    .container {
+      display: flex;
+    }
+  </style>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="./index.js"></script>
+
+  <style>
+    body {
+      font-family:  "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    }
+    div.up {
+      transform: rotate(270deg);
+      margin: -5px;
+      margin-bottom: -10px;
+    }
+    div.down {
+      transform: rotate(90deg);
+      margin: -5px;
+      margin-top: -10px;
+    }
+    div.left {
+      transform: rotate(180deg);
+      margin: -5px;
+    }
+    div.right {
+      margin: -5px;
+    }
+    
+  </style>
+
+</head>
+
+<body style="background-color: #000;">
+
+
+  <img style="width: 100%; position:absolute; top:0; left:0; z-index: 1;" id="imageholder" src="./media/default_background.png"
+    id='pics'>
+
+  <table style="position: absolute; top: 0; left: 15px; z-index: 2;">
+    <tr>
+      <td></td>
+      <td><div class="up" id="upArrow" style='font-size:35px; color:grey;'> &#10151; </div></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><div class="left" id="leftArrow" style='font-size:30px; color:grey;'>&#10151;</div></td>
+      <td></td>
+      <td><div class="right" id="rightArrow" style='font-size:30px; color:grey;'>&#10151;</div></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><div class="down" id="downArrow" style='font-size:35px; color:grey;'>&#10151;</div></td>
+      <td></td>
+    </tr>
+  </table>
+
+  <button style="position: fixed; bottom: 10px; right: 10px;" class="btn" onclick="initiate()">Init sockets</button>
+  <div style="position:fixed; top:10px; right:10px; z-index: 4; color: darkgreen; padding: 3px; background-color: darkgrey;" id="stats" >CPU Temp: 100</div>
+
+</body>
+
+</html>
