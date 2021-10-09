@@ -5,7 +5,7 @@ var server_port_camera = 65433;
 var server_port_command = 65432;
 var server_port_stats = 65434;
 
-var server_addr = "192.168.1.16";   // the IP address of your Raspberry PI
+var server_addr = "192.168.2.107";   // the IP address of your Raspberry PI
 var commandclient = null;
 
 
@@ -35,7 +35,6 @@ function cameraclientinit() {
         console.log('disconnected from server');
     });
 }
-
 function statsclientinit() {
     const net = require('net');
     const client = net.createConnection({ port: server_port_stats, host: server_addr }, () => {
@@ -50,9 +49,12 @@ function statsclientinit() {
                 statsdata += chunkSplits[0];
             } else {
                 statsdata += chunkSplits[0];
-                statsJSON = JSON.parse(statsdata)
-                document.getElementById("stats").innerHTML = `CPU Temp: ${statsJSON.cputemp}     GPU Temp: ${statsJSON.gputemp}     Battery: ${statsJSON.battery}`;
-                 statsdata = chunkSplits[chunkSplits.length -1];
+                statsJSON = JSON.parse(statsdata);
+                //document.getElementById("stats").innerHTML = `CPU Temp: ${statsJSON.cputemp}  <br/>   GPU Temp: ${statsJSON.gputemp}   <br/>  Battery: ${statsJSON.battery}`;
+                document.getElementById("cpu-t").innerText = statsJSON.cputemp;
+                document.getElementById("gpu-t").innerText = statsJSON.gputemp;
+                document.getElementById("battery").innerText = statsJSON.battery;
+                statsdata = chunkSplits[chunkSplits.length -1];
             }
         }
         catch (err) {
@@ -63,7 +65,6 @@ function statsclientinit() {
         console.log('disconnected from server');
     });
 }
-
 function commandclientinit() {
     const net = require('net');
     commandclient = net.createConnection({ port: server_port_command, host: server_addr }, () => {
@@ -74,8 +75,6 @@ function commandclientinit() {
         console.log('disconnected from server');
     });
 }
-
-
 let lastKey = ['', Date.now()]
 
 function updateKey(e) {
@@ -102,7 +101,6 @@ function updateKey(e) {
         lastKey = ['68', Date.now()]
     }
 }
-
 // reset the key to the start state 
 function resetKey(e) {
 
@@ -113,7 +111,6 @@ function resetKey(e) {
     document.getElementById("leftArrow").style.color = "grey";
     document.getElementById("rightArrow").style.color = "grey";
 }
-
 const updateCommandClient = () => {
     
     if (Date.now() - lastKey[1] <  500) {
@@ -123,12 +120,11 @@ const updateCommandClient = () => {
         commandclient && commandclient.write('STOP')
     }
 }
-
 function initiate() {
     commandclientinit();
     statsclientinit();
     cameraclientinit();
     setInterval(function () {
         updateCommandClient();
-    }, 50);
+    }, 25);
 }

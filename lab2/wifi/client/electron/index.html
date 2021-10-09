@@ -1,69 +1,62 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-  <meta charset="UTF-8">
-  <style>
-    .container {
-      display: flex;
-    }
-  </style>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  <script src="./index.js"></script>
-
-  <style>
-    body {
-      font-family:  "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-    }
-    div.up {
-      transform: rotate(270deg);
-      margin: -5px;
-      margin-bottom: -10px;
-    }
-    div.down {
-      transform: rotate(90deg);
-      margin: -5px;
-      margin-top: -10px;
-    }
-    div.left {
-      transform: rotate(180deg);
-      margin: -5px;
-    }
-    div.right {
-      margin: -5px;
-    }
+  <head>
+    <meta charset="UTF-8">
+    <style>
+      .container{
+                  display: flex;
+                }
+    </style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="./index.js"></script>
     
-  </style>
+  </head>
 
-</head>
+  <body onload="initiate()">
+    <div class="container">
+  
+      <div class="jumbotron">
+      <h2>CS498: IoT - Kingfishers - Lab 2</h2>
 
-<body style="background-color: #000;">
+      <!-- <video class="center" width="600" height="400" controls>
+        <source src="samplevid.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+      </video> -->
+      <!--<img src="./media/default_background.png" id='pics'>-->
 
-
-  <img style="width: 100%; position:absolute; top:0; left:0; z-index: 1;" id="imageholder" src="./media/default_background.png"
+      <img id="imageholder" src="./media/default_background.png"
     id='pics'>
 
-  <table style="position: absolute; top: 0; left: 15px; z-index: 2;">
-    <tr>
-      <td></td>
-      <td><div class="up" id="upArrow" style='font-size:35px; color:grey;'> &#10151; </div></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td><div class="left" id="leftArrow" style='font-size:30px; color:grey;'>&#10151;</div></td>
-      <td></td>
-      <td><div class="right" id="rightArrow" style='font-size:30px; color:grey;'>&#10151;</div></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td><div class="down" id="downArrow" style='font-size:35px; color:grey;'>&#10151;</div></td>
-      <td></td>
-    </tr>
-  </table>
+    </div> 
+  
+  </div>
 
-  <button style="position: fixed; bottom: 10px; right: 10px;" class="btn" onclick="initiate()">Init sockets</button>
-  <div style="position:fixed; top:10px; right:10px; z-index: 4; color: darkgreen; padding: 3px; background-color: darkgrey;" id="stats" >CPU Temp: 100</div>
+  <div class="row">
+    <div class="container">
+        <div class="jumbotron text-center col-md-6">
+            <span>&nbsp;&nbsp;</span> 
+            <span id="upArrow" style='font-size:50px; color:grey;'>&#8679;</span>
+            <br>
+            <span id="leftArrow" style='font-size:45px; color:grey;'>&#8678;</span>
+            <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+            <span id="rightArrow" style='font-size:45px; color:grey;'>&#8680;</span>
+            <br>
+            <span>&nbsp;&nbsp;</span> 
+            <span id="downArrow" style='font-size:50px; color:grey;'>&#8681;</span>
+        </div>
 
-</body>
+        <div class="jumbotron text-left col-md-6">
+          <p>
+           <span id="temprature_dot" style="color:green">&bull;</span> CPU Temperature: <span id="cpu-t">0.0</span>C
+           <br>
+           <span id="temprature_dot" style="color:green">&bull;</span> GPU Temperature: <span id="gpu-t">0.0</span>C
+           <br>
+           <span id="temprature_dot" style="color:green">&bull;</span> Battery: <span id="battery">0.0</span>v
+          </p>  
+        </div>
+    </div>
+</div>
 
+  </body>
 </html>
