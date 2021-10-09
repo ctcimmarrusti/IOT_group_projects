@@ -13,20 +13,17 @@ import picamera
 from PIL import Image
 import base64
 import time
-
 from picar_4wd.utils import cpu_temperature, gpu_temperature, power_read
 
-
 FLIP_IMAGE_VERTIAL = True
-HOST = "192.168.1.16" 
+HOST = "192.168.2.107" 
 COMMANDPORT = 65432
 WEBCAMPORT = 65433
 STATSPORT = 65434
 
-
 CAMERA_WIDTH = 640
 CAMERA_HEIGHT = 480
-speed = 1
+speed = 10
 
 class Direction(Enum):
     FORWARD = 1
@@ -34,9 +31,7 @@ class Direction(Enum):
     LEFT = 3
     RIGHT = 4
     STOPPED = 5
-
 currentDirection = Direction.STOPPED
-
 def driveTowardsDirection(direction):
     global currentDirection
     if direction == Direction.FORWARD and currentDirection != Direction.FORWARD:
@@ -50,8 +45,6 @@ def driveTowardsDirection(direction):
     elif direction == Direction.STOPPED and currentDirection != Direction.STOPPED:
         fc.stop()
     currentDirection = direction
-
-
 def driveViaSocketCommand(command):
     if command == "87":
         driveTowardsDirection(Direction.FORWARD)
@@ -63,16 +56,13 @@ def driveViaSocketCommand(command):
         driveTowardsDirection(Direction.RIGHT)
     elif command == "STOP":
         driveTowardsDirection(Direction.STOPPED)
-
-        
-
 def runCameraSocket():
   with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.bind((HOST, WEBCAMPORT))
     s.listen()
     camclient, clientInfo = s.accept()
     while True:
-        with picamera.PiCamera(resolution=(CAMERA_WIDTH, CAMERA_HEIGHT), framerate=5) as camera:
+        with picamera.PiCamera(resolution=(CAMERA_WIDTH, CAMERA_HEIGHT), framerate=30) as camera:
             camera.start_preview()
             try:
                 stream = io.BytesIO()
@@ -94,9 +84,7 @@ def runCameraSocket():
                 camclient.close()
                 s.close()
             finally:
-                camera.stop_preview()
-                
-
+                camera.stop_preview()            
 def runCommandSocket():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, COMMANDPORT))
@@ -111,7 +99,6 @@ def runCommandSocket():
             print(e)
             client.close()
             s.close()
-
 def runStatsSocket():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, STATSPORT))
@@ -139,5 +126,3 @@ t3 = threading.Thread(target=runStatsSocket, args=())
 t1.start()
 t2.start()
 t3.start()
-
-
