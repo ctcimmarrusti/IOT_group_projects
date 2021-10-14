@@ -1,4 +1,4 @@
-#Team Kingfishers, Lab 2
+# Team Kingfishers, Lab 2
 Michael Galloway  
 Tod Toter  
 Caleb Cimmarrusti  
