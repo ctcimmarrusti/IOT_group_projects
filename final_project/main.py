@@ -1,6 +1,7 @@
+import ipaddress
 from communication_message import CommunicationMessage, loadCommunicationMessageFromJSON
 from communication_server import CommunicationServer
-from dc2 import RoutingTable
+from dc2 import Route, RoutingTable
 from routing_server import RoutingServer
 import json
 CONFIG_FILE = 'init.json'
@@ -18,6 +19,7 @@ class Main:
         self.communication_port = self.config[COMMUNICATION_PORT_KEY]
 
         self.routing_table = RoutingTable(self.own_ip)
+        self.loadInitialRoutes()
 
         self.route_server = RoutingServer(self.own_ip, self.routing_port, self.onRoutesReceived)
         self.communication_server = CommunicationServer(self.own_ip, self.communication_port, self.onCommunicationReceived)
@@ -27,7 +29,11 @@ class Main:
 
     # load the initial routes from the self.config config loaded TODO
     def loadInitialRoutes(self):
-        pass
+        for neighbor in self.config['initial_routes']:
+            for route in neighbor['routes']:
+                path = list(map(lambda p: ipaddress.ip_address(p), route['path']))
+                r = Route(ipaddress.ip_address(route['destination_ip']), path)
+                self.routing_table.routeFromNeighbor(ipaddress.ip_address(neighbor['neighbor_ip']), r)
 
     #loads the file-based config
     def loadConfig(self):
@@ -44,6 +50,8 @@ class Main:
 
     def onCommunicationReceived(self, data):
         messageObj = loadCommunicationMessageFromJSON(data)
+        messageObj.destination_ip
+        
         print('---')
         # data is json of type CommunicationMessage
         #TODO process message. Either consume the message if destination is own_ip or forward to destination_ip of message
@@ -54,9 +62,9 @@ class Main:
     # First lookup IP via routing table and get next hop
     # Create CommunicationMessage obj and send serialized object
     def sendMessage(self, message, ip):
-        packet = CommunicationMessage(message, ip, [])
-        self.communication_server.sendMessage(next_hop, self.communication_port, packet.toJSON())
-        pass
+        route = self.routing_table.getRouteByDestinationIp(ipaddress.ip_address(ip))
+        packet = CommunicationMessage(message, ip, [self.own_ip])
+        self.communication_server.sendMessage(str(route.nextHop()), self.communication_port, packet.toJSON())
 
     #starts a command loop from terminal input. TODO parse input to either
     # 1) Send message to another IP
@@ -67,6 +75,7 @@ class Main:
             command = input("Please enter command: ")
             print(command)
             #self.route_server.sendRoutes('0.0.0.0', 8090, "testtest")
+            self.sendMessage('test message','0.0.0.0')
 
 
 

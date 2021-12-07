@@ -1,6 +1,30 @@
 {
-    "own_ip" : "0.0.0.0",
+    "own_ip": "0.0.0.0",
     "routing_port": 8090,
     "communication_port": 8091,
-    "initial_routes": []
+    "initial_routes": [
+        {
+            "neighbor_ip": "192.168.0.10",
+            "routes": [
+                {
+                    "destination_ip": "192.168.0.12",
+                    "path": [
+                        "192.168.0.11",
+                        "192.168.0.12"
+                    ]
+                }
+            ]
+        },
+        {
+            "neighbor_ip": "0.0.0.0",
+            "routes": [
+                {
+                    "destination_ip": "0.0.0.0",
+                    "path": [
+                        "0.0.0.0"
+                    ]
+                }
+            ]
+        }
+    ]
 }

@@ -14,7 +14,7 @@ class Route:
 #returns ip of the next hop in the route
 	def nextHop(self):
 		if len(self.path) < 2: # if you are at ultimate or penultimate location return dest.
-			return dest_ip
+			return self.dest_ip
 		else:
 			return self.path[0]
 
@@ -29,7 +29,7 @@ class Route:
 #removes 0th element and returns it
 	def popHop(self):
 		returnee = self.path.pop(0)
-		self.cost = len(ip_path)
+		self.cost = len(self.ip_path)
 		return returnee
 
 #add hop to the front of a route and return new route i.e. take a route given by a neighbor and create a route out of it
@@ -118,7 +118,7 @@ class RoutingTable:
 
 #after receiving alert that someone lost a connection
 #drops all routes which include this connection
-	def brokenConnection(ip1, ip2):
+	def brokenConnection(self, ip1, ip2):
 		droppees = {}
 		for k, v in self.route_table.items(): #for each route
 			drop = False
@@ -131,6 +131,9 @@ class RoutingTable:
 					droppees.update({k:v})
 					break
 
+#get the route in the hashed route table by the ultimate destination
+	def getRouteByDestinationIp(self, dest):
+		return self.route_table[dest]
 
 
 
@@ -138,22 +141,23 @@ class RoutingTable:
 
 
 
-a = Route(ipaddress.ip_address('192.168.0.1'),[ipaddress.ip_address('192.168.0.3'),ipaddress.ip_address('192.168.0.2'),ipaddress.ip_address('192.168.0.1')])
-print(a)
-print("-")
-n = RoutingTable(ipaddress.ip_address('192.168.0.1'))
-print(n)
-print("-")
-n.addNeighbor(ipaddress.ip_address('192.168.0.2'))
-n.addNeighbor(ipaddress.ip_address('192.168.0.5'))
-r2 = Route(ipaddress.ip_address('192.168.0.4'), [ipaddress.ip_address('192.168.0.3'),ipaddress.ip_address('192.168.0.4')])
-p = n.routeFromNeighbor(ipaddress.ip_address('192.168.0.2'), r2)
-print("------------")
-printee = n.hasDestination(ipaddress.ip_address('192.168.0.5'))
-print(printee)
-printee = n.hasDestination(ipaddress.ip_address('192.168.0.75'))
-print(printee)
-print("------------")
-print(p)
-n.dropNeighbor(ipaddress.ip_address('192.168.0.2'))
-print(n)
+
+# a = Route(ipaddress.ip_address('192.168.0.1'),[ipaddress.ip_address('192.168.0.3'),ipaddress.ip_address('192.168.0.2'),ipaddress.ip_address('192.168.0.1')])
+# print(a)
+# print("-")
+# n = RoutingTable(ipaddress.ip_address('192.168.0.1'))
+# print(n)
+# print("-")
+# n.addNeighbor(ipaddress.ip_address('192.168.0.2'))
+# n.addNeighbor(ipaddress.ip_address('192.168.0.5'))
+# r2 = Route(ipaddress.ip_address('192.168.0.4'), [ipaddress.ip_address('192.168.0.3'),ipaddress.ip_address('192.168.0.4')])
+# p = n.routeFromNeighbor(ipaddress.ip_address('192.168.0.2'), r2)
+# print("------------")
+# printee = n.hasDestination(ipaddress.ip_address('192.168.0.5'))
+# print(printee)
+# printee = n.hasDestination(ipaddress.ip_address('192.168.0.75'))
+# print(printee)
+# print("------------")
+# print(p)
+# n.dropNeighbor(ipaddress.ip_address('192.168.0.2'))
+# print(n)
