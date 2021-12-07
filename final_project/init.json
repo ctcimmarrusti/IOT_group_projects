@@ -1,0 +1,6 @@
+{
+    "own_ip" : "0.0.0.0",
+    "routing_port": 8090,
+    "communication_port": 8091,
+    "initial_routes": []
+}
