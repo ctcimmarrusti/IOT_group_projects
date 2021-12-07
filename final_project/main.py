@@ -41,6 +41,10 @@ class Main:
         config = json.load(config_file)
         return config
 
+    # Choose to do with a message that was meant for self as destination node
+    def consumeMessage(self, message):
+        print(message) 
+
     #callback method for when routes are received from other nodes
     def onRoutesReceived(self, data):
         print('---')
@@ -50,34 +54,39 @@ class Main:
 
     def onCommunicationReceived(self, data):
         messageObj = loadCommunicationMessageFromJSON(data)
-        messageObj.destination_ip
-        
-        print('---')
-        # data is json of type CommunicationMessage
-        #TODO process message. Either consume the message if destination is own_ip or forward to destination_ip of message
-        print(data)
-        print('---')
+        if messageObj.destination_ip == self.own_ip:
+            self.consumeMessage(messageObj.getMessage())
+        else:
+            messageObj.appendToPath(self.own_ip)
+            self.sendMessage(messageObj, messageObj.destination_ip)
     
     # Sends a message to another node by IP
     # First lookup IP via routing table and get next hop
     # Create CommunicationMessage obj and send serialized object
-    def sendMessage(self, message, ip):
-        route = self.routing_table.getRouteByDestinationIp(ipaddress.ip_address(ip))
+    def newMessage(self, message, ip):
         packet = CommunicationMessage(message, ip, [self.own_ip])
-        self.communication_server.sendMessage(str(route.nextHop()), self.communication_port, packet.toJSON())
+        self.sendMessage(packet,ip)
+    def sendMessage(self, messageObj:CommunicationMessage, ip):
+        route = self.routing_table.getRouteByDestinationIp(ipaddress.ip_address(ip))
+        self.communication_server.sendMessage(str(route.nextHop()), self.communication_port, messageObj.toJSON())
 
     #starts a command loop from terminal input. TODO parse input to either
-    # 1) Send message to another IP
-    # 2) Drop neighbor
-    # 3) Add neighbor
+    # 1) Send message to another IP      sendto:192.168.0.10:this is my message
+    # 2) Drop neighbor                   drop:192.168.0.5
+    # 3) Add neighbor                    add:192.168.0.5
     def start(self):
         while(True):
-            command = input("Please enter command: ")
-            print(command)
-            #self.route_server.sendRoutes('0.0.0.0', 8090, "testtest")
-            self.sendMessage('test message','0.0.0.0')
-
-
+            c = input("Please enter command: ")
+            cArr = c.split(":")
+            command = cArr[0]
+            if command == "sendto":
+                if len(cArr) != 3:
+                    continue
+                self.newMessage(cArr[2], cArr[1])
+            elif command == "drop":
+                pass
+            elif command == "add":
+                pass
 
 main = Main()
 main.start()
