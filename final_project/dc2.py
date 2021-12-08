@@ -14,7 +14,7 @@ class Route:
 #returns ip of the next hop in the route
 	def nextHop(self):
 		if len(self.path) < 2: # if you are at ultimate or penultimate location return dest.
-			return self.dest_ip
+			return self.dest
 		else:
 			return self.path[0]
 
@@ -60,8 +60,8 @@ class RoutingTable:
 	def addRoute(self, newRoute):
 		new_ip = newRoute.dest
 		if(newRoute.getDest() in self.route_table.keys()):
-			if n.getCost() < self.route_table[new_ip].getCost(): #if new cost is less than current pathway cost, replace pathway
-				self.route_table.update({new_ip: n}) #this allows only one path to any IP
+			if newRoute.getCost() < self.route_table[new_ip].getCost(): #if new cost is less than current pathway cost, replace pathway
+				self.route_table.update({new_ip: newRoute}) #this allows only one path to any IP
 				return 1
 			else:
 				return -1

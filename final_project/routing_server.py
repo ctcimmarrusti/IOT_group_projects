@@ -1,3 +1,4 @@
+import json
 import socket
 import socketserver
 import threading
@@ -12,7 +13,7 @@ class RoutingServer:
 	    self.onMessage = onMessage
     
     def sendRoutes(self, ip, port, routes):
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:  
             sock.sendto(bytes(routes + "\n", "utf-8"), (ip, port))
 
     # Starts a UDP server that doesnt quit until the main program quits
@@ -26,4 +27,16 @@ class RoutingServer:
         thread.start()
         return thread
 
+class RouteDto:
+    def __init__(self, destination_ip, path):    
+        self.destination_ip = str(destination_ip)
+        self.path = list(map(lambda p: str(p), path))
+
+# When a message is received, can create an object from the json
+def loadRouteDtoArrFromJSON(jsonStr):
+    retArr = []
+    routeDtoArr = json.loads(jsonStr)
+    for route in routeDtoArr:
+        retArr.append(RouteDto(**route))
+    return retArr   
 

@@ -7,7 +7,7 @@ class UDPHandler(socketserver.BaseRequestHandler):
 
     def handle(self):
         data = self.request[0].strip()
-        self.callback(data)
+        self.callback(data, self.client_address)
 
 def handler_factory(callback):
     def createHandler(*args, **keys):
