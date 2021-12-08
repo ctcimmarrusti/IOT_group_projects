@@ -8,9 +8,9 @@ from socket_handler import handler_factory
 
 class RoutingServer:
     def __init__(self, host_ip, host_port, onMessage):
-	    self.host_ip = host_ip
-	    self.host_port = host_port 
-	    self.onMessage = onMessage
+        self.host_ip = host_ip
+        self.host_port = host_port 
+        self.onMessage = onMessage
     
     def sendRoutes(self, ip, port, routes):
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:  
@@ -40,3 +40,10 @@ def loadRouteDtoArrFromJSON(jsonStr):
         retArr.append(RouteDto(**route))
     return retArr   
 
+def routineTableToJson(routing_table, own_ip):
+    routes = []
+    for route in routing_table:
+        if route[1].dest != own_ip:
+            routes.append(RouteDto(route[1].dest, route[1].path))
+    routeJson = json.dumps(routes, default=lambda o: o.__dict__, sort_keys=True)
+    return routeJson
