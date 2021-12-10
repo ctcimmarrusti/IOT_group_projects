@@ -107,7 +107,6 @@ class Main:
         print('all_destinations', all_destinations)
         for destination in all_destinations:
             packet = CommunicationMessage(message, str(destination), [self.own_ip], group_identifier)
-            print('sending to: ', destination)
             self.sendMessage(packet,str(destination))
     
     def sendMessage(self, messageObj:CommunicationMessage, ip):
@@ -153,7 +152,7 @@ class Main:
                 self.joinGroup(group)
             elif c == "leavegroup":
                 group = input("What group would you like to leave?: ")
-                self.joinGroup(group)
+                self.leaveGroup(group)
             elif c == "printroutes":
                 routeJson = routineTableToJson(self.routing_table.route_table.items(), self.own_ip)
                 print('\n\n\n',routeJson,'\n\n\n')
