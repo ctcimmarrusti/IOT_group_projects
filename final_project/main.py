@@ -6,9 +6,10 @@ from dc2 import Route, RoutingTable
 from routing_server import RouteDto, RoutingServer, loadRouteDtoArrFromJSON, routineTableToJson
 import json
 import time
-#from GUI_App import GUI_App
+from GUI_App import GUI_App
 from datetime import datetime
 import re
+import sys
 
 CONFIG_FILE = 'init.json'
 ROUTING_PORT_KEY = 'routing_port'
@@ -52,7 +53,7 @@ class Main:
                 for neighbor in neighbors:
                     self.route_server.sendRoutes(str(neighbor), self.routing_port, routeJson)
             except:
-                print('\nError dispatching routes\n')
+                self.print_message('Error dispatching routes')
 
 
     def startDispatchRoutes(self):
@@ -67,12 +68,14 @@ class Main:
 
     # Choose to do with a message that was meant for self as destination node
     def consumeMessage(self, message, path, client, group_identifier = None):
+        message_string = "Message Recived"
         if not group_identifier is None and group_identifier in self.groups:
-            print('\n\n','GROUP: ',group_identifier, '\n')
-            print(message, '\n', 'Path: ', path, '\n\n')
+            message_string = "Group " + message_string + "\nGroup: " + group_identifier
         elif group_identifier is None:
-            print('\n','FROM: ',client[0],': ', message, '\n', 'Path: ', path, '\n\n')
-
+            message_string += "\nFrom: "  + str(client[0])
+        message_string += "\nMessage: " + str(message)
+        message_string += '\nPath: ' + str(path)
+        self.print_message(message_string)
     #callback method for when routes are received from other nodes
     def onRoutesReceived(self, data, client):
         if client[0] in dropped_neighbors:
@@ -94,11 +97,11 @@ class Main:
             self.consumeMessage(messageObj.getMessage(), messageObj.getPath(), client, messageObj.getGroupIdentifier())
         else:
             if len(messageObj.getPath()) > 4:
-                print('\n Path getting too large\n')
+                self.print_message('Path getting too large')
                 return
             
             if self.own_ip in messageObj.getPath():
-                print('\n Circular reference. Aborting')
+                self.print_message('Circular reference. Aborting')
                 return
 
             messageObj.appendToPath(self.own_ip)
@@ -130,9 +133,9 @@ class Main:
                 route = self.routing_table.getRouteByDestinationIp(ipaddress.ip_address(ip))
                 self.communication_server.sendMessage(str(route.nextHop()), self.communication_port, messageObj.toJSON())
             else:
-                print('\n Destination unavailble \n')
+                self.print_message('Destination unavailble')
         except Exception as e:
-            print('\nError sending:',e,'\n')
+            self.print_message('Error sending:',e)
 
     def joinGroup(self, group_identifier):
         if not group_identifier is None and not group_identifier in self.groups:
@@ -173,27 +176,32 @@ class Main:
                 self.leaveGroup(group)
             elif c == "printroutes":
                 routeJson = routineTableToJson(self.routing_table.route_table.items(), self.own_ip)
-                print('\n\n\n',routeJson,'\n\n\n')
+                self.print_message(routeJson)
+    def print_message(*args):
+        global gui
+        datetime_string = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        # Ignore first param, first param is self
+        message_string = " ".join(str(v) for v in args[1:])
+        gui.append_output("{0} - {1}".format(datetime_string, message_string))
 
-#def gui_send_message(*args):
-#    global gui
-#    now = datetime.now()
-#    now = now.strftime("%d/%m/%Y %H:%M:%S")
-#    id_addr = gui.ip_entry_var.get()
-#    message = gui.message_entry.get("1.0", "end-1c")
-#    message_string = ""
-#
-#    if(re.match(r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b', id_addr) == None):
-#        message_string = "Invalid IP Address"
-#    elif(message == ""):
-#        message_string = "Message cannot be blank"
-#    else:
-#        message_string = "{0} - Sending Message - To[{1}] Message[{2}]".format(now, id_addr, message)
-#
-#    gui.append_output(message_string)
+def gui_send_message(*args):
+    global gui, main
+    
+    id_addr = gui.ip_entry_var.get()
+    message = gui.message_entry.get("1.0", "end-1c")
+
+    if(re.match(r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b', id_addr) == None):
+        main.print_message("Invalid IP Address")
+    elif(message == ""):
+        main.print_message("Message cannot be blank")
+    else:
+        main.print_message("Sending Message\nTo: {0}\nMessage: {1}".format(id_addr, message))
+        main.newMessage(message, id_addr)
+
+    
 
 main = Main()
-#gui = GUI_App()
-#gui.send_button.configure(command=gui_send_message)
-#gui.mainloop()
-main.start()
+gui = GUI_App()
+gui.send_button.configure(command=gui_send_message)
+gui.mainloop()
+#main.start()
