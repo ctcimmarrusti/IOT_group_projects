@@ -63,9 +63,11 @@ class Main:
 
     # Choose to do with a message that was meant for self as destination node
     def consumeMessage(self, message, path, client, group_identifier = None):
-        if not group_identifier is None:
+        if not group_identifier is None and group_identifier in self.groups:
             print('\n\n','GROUP: ',group_identifier, '\n')
-        print('\n','FROM: ',client[0],': ', message, '\n', 'Path: ', path, '\n\n')
+            print(message, '\n', 'Path: ', path, '\n\n')
+        else:
+            print('\n','FROM: ',client[0],': ', message, '\n', 'Path: ', path, '\n\n')
 
     #callback method for when routes are received from other nodes
     def onRoutesReceived(self, data, client):
