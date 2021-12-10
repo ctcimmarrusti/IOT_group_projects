@@ -72,6 +72,8 @@ class Main:
 
     #callback method for when routes are received from other nodes
     def onRoutesReceived(self, data, client):
+        if client[0] in dropped_neighbors:
+            return
         self.routing_table.addNeighbor(ipaddress.ip_address(client[0])) # probably should check if the routing table has this neighbor first before adding
         routeArr = loadRouteDtoArrFromJSON(data)
         for route in routeArr:
