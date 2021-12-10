@@ -79,11 +79,11 @@ class Main:
 
     def onCommunicationReceived(self, data, client):
         messageObj = loadCommunicationMessageFromJSON(data)
-        if messageObj.destination_ip == self.own_ip:
-            self.consumeMessage(messageObj.getMessage(), messageObj.getPath(), client)
-        elif not messageObj.getGroupIdentifier() is None:
+        if not messageObj.getGroupIdentifier() is None:
             if messageObj.getGroupIdentifier() in self.groups:
                 self.consumeMessage(messageObj.getMessage(), messageObj.getPath(), client)
+        elif messageObj.destination_ip == self.own_ip:
+            self.consumeMessage(messageObj.getMessage(), messageObj.getPath(), client)
         else:
             if len(messageObj.getPath()) > 4:
                 print('\n Path getting too large\n')
