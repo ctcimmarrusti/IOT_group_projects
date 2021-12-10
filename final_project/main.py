@@ -79,11 +79,8 @@ class Main:
 
     def onCommunicationReceived(self, data, client):
         messageObj = loadCommunicationMessageFromJSON(data)
-        if not messageObj.getGroupIdentifier() is None:
-            if messageObj.getGroupIdentifier() in self.groups:
-                self.consumeMessage(messageObj.getMessage(), messageObj.getPath(), client)
-        elif messageObj.destination_ip == self.own_ip:
-            self.consumeMessage(messageObj.getMessage(), messageObj.getPath(), client)
+        if messageObj.destination_ip == self.own_ip:
+            self.consumeMessage(messageObj.getMessage(), messageObj.getPath(), client, messageObj.getGroupIdentifier())
         else:
             if len(messageObj.getPath()) > 4:
                 print('\n Path getting too large\n')
@@ -108,6 +105,7 @@ class Main:
         print('all_destinations', all_destinations)
         for destination in all_destinations:
             packet = CommunicationMessage(message, str(destination), [self.own_ip], group_identifier)
+            print('sending to: ', destination)
             self.sendMessage(packet,str(destination))
     
     def sendMessage(self, messageObj:CommunicationMessage, ip):
