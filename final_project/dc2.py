@@ -67,6 +67,7 @@ class RoutingTable:
 				return -1
 		else:
 			self.route_table[new_ip] = newRoute
+			self.allNodes.append(new_ip)
 			return 0
 
 #returns 0 if this is the first pathway to the node
@@ -74,8 +75,6 @@ class RoutingTable:
 #returns -1 if this is an inferior route and ignores the route
 #adds node to allnodes list, adds it to neighbors, creates new route and adds it to routetable
 	def addNeighbor(self, new_ip):
-		if not (new_ip in self.allNodes):
-			self.allNodes.append(new_ip)
 		if not (new_ip in self.neighbors):
 			self.neighbors.append(new_ip) #track new neighbor
 		newR = Route(new_ip, [new_ip]) #create route to new neighbor
@@ -107,6 +106,8 @@ class RoutingTable:
 		droppees = {}
 		if(nei_ip in self.neighbors):
 			self.neighbors.remove(nei_ip)
+		if(nei_ip in self.allNodes):
+			self.allNodes.remove(nei_ip)
 		for k, v in self.route_table.items(): #for each route
 			for ip in v.path: #for each ip stop in the route
 				if ip == nei_ip: #if the neighbor being dropped is in the route
@@ -121,43 +122,78 @@ class RoutingTable:
 	def brokenConnection(self, ip1, ip2):
 		droppees = {}
 		for k, v in self.route_table.items(): #for each route
-			drop = False
 			last_ip = False
 			for ip in v.path:
 				if not last_ip: #if first element in list continue
 					last_ip = ip
 					continue
 				if (ip1 == last_ip and ip2 == ip) or (ip1 == ip and ip2 ==last_ip):#if the path contains this connection
-					droppees.update({k:v})
+					droppees[k] = v
 					break
+				last_ip = ip
+		for k in droppees: #must wait till end of loop to drop in order to avoid iterator error
+			self.dropRouteToDest(k)
+		return droppees
+
+	def hasDest(self, d):
+		return d in self.route_table
+
+#drops route and removes the node from all Nodes
+	def dropRouteToDest(self, d):
+		del self.route_table[d]
+		self.allNodes.remove(d)
 
 #get the route in the hashed route table by the ultimate destination
 	def getRouteByDestinationIp(self, dest):
 		return self.route_table[dest]
 
+#compare to see if neighbor has lost routes I route through him --drop those route
+#attempt to add all of neighbors routes, if any are new or superior they will be added
+	def routingTableComparison(self, rt2):
+		droppees = []
+		myip = self.my_ip
+		rt2ip = rt2.my_ip
+		print("my IP: " + str(myip))
+		print("rt2IP: " + str(rt2ip))
+		for k, v in self.route_table.items():
+			if(v.path[0] == rt2ip):
+				if not rt2.hasDest(k):
+					droppees.append(k)
+		self.dropRouteToDest(k)
+		for v in rt2.route_table.values():
+			print("---------------------------------------")
+			print(v)
+			if v.dest == myip:
+				print("found me")
+				continue
+			self.routeFromNeighbor(rt2ip, v)
 
 
 
 
-
-
-
-# a = Route(ipaddress.ip_address('192.168.0.1'),[ipaddress.ip_address('192.168.0.3'),ipaddress.ip_address('192.168.0.2'),ipaddress.ip_address('192.168.0.1')])
-# print(a)
-# print("-")
+# a = Route(ipaddress.ip_address('192.168.0.4'),[ipaddress.ip_address('192.168.0.3'),ipaddress.ip_address('192.168.0.2'),ipaddress.ip_address('192.168.0.1')])
+# # print(a)
+# # print("-")
 # n = RoutingTable(ipaddress.ip_address('192.168.0.1'))
-# print(n)
-# print("-")
+# # print(n)
+# # print("-")
 # n.addNeighbor(ipaddress.ip_address('192.168.0.2'))
 # n.addNeighbor(ipaddress.ip_address('192.168.0.5'))
 # r2 = Route(ipaddress.ip_address('192.168.0.4'), [ipaddress.ip_address('192.168.0.3'),ipaddress.ip_address('192.168.0.4')])
-# p = n.routeFromNeighbor(ipaddress.ip_address('192.168.0.2'), r2)
-# print("------------")
-# printee = n.hasDestination(ipaddress.ip_address('192.168.0.5'))
-# print(printee)
-# printee = n.hasDestination(ipaddress.ip_address('192.168.0.75'))
-# print(printee)
-# print("------------")
-# print(p)
-# n.dropNeighbor(ipaddress.ip_address('192.168.0.2'))
+# n.routeFromNeighbor(ipaddress.ip_address('192.168.0.2'), r2)
+# # print("------------add route from neighbor: 2,3,4")
+# # print(n)
+# t2 = RoutingTable(ipaddress.ip_address('192.168.0.5'))
+# t2.addNeighbor(ipaddress.ip_address('192.168.0.1'))
+# t2.addNeighbor(ipaddress.ip_address('192.168.0.17'))
+# print("-------t2---------")
+# print(t2)
+# r3 = Route(ipaddress.ip_address('192.168.0.7'), [ipaddress.ip_address('192.168.0.7')])
+# n.routeFromNeighbor(ipaddress.ip_address('192.168.0.5'), r3)
+# print("------------Add route: 5, 7")
+# print(n)
+# print("------------routing table comparison")
+#
+# # n.brokenConnection(ipaddress.ip_address('192.168.0.3'),ipaddress.ip_address('192.168.0.4'))
+# n.routingTableComparison(t2)
 # print(n)
