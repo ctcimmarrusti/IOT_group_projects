@@ -32,6 +32,8 @@ class Main:
         self.communication_server.start()
         self.startDispatchRoutes()
 
+        self.groups = []
+
     # load the initial routes from the self.config config loaded TODO
     def loadInitialRoutes(self):
         for neighbor in self.config['neighbors']: 
@@ -60,8 +62,10 @@ class Main:
         return config
 
     # Choose to do with a message that was meant for self as destination node
-    def consumeMessage(self, message, path, client):
-        print('\n\n','FROM: ',client[0],': ', message, '\n', 'Path: ', path, '\n\n') 
+    def consumeMessage(self, message, path, client, group_identifier = None):
+        if not group_identifier is None:
+            print('\n\n','GROUP: ',group_identifier, '\n')
+        print('\n','FROM: ',client[0],': ', message, '\n', 'Path: ', path, '\n\n')
 
     #callback method for when routes are received from other nodes
     def onRoutesReceived(self, data, client):
@@ -71,9 +75,13 @@ class Main:
             r = Route(ipaddress.ip_address(route.destination_ip), [ipaddress.ip_address(client[0])] + route.path)
             self.routing_table.routeFromNeighbor(ipaddress.ip_address(client[0]), r)
 
+        #if dropped node type, call drop_neighbor, else update routes. 
+
     def onCommunicationReceived(self, data, client):
         messageObj = loadCommunicationMessageFromJSON(data)
         if messageObj.destination_ip == self.own_ip:
+            self.consumeMessage(messageObj.getMessage(), messageObj.getPath(), client)
+        elif not messageObj.getGroupIdentifier() is None and messageObj.getGroupIdentifier() in self.groups:
             self.consumeMessage(messageObj.getMessage(), messageObj.getPath(), client)
         else:
             if len(messageObj.getPath()) > 4:
@@ -94,6 +102,12 @@ class Main:
         packet = CommunicationMessage(message, ip, [self.own_ip])
         self.sendMessage(packet,ip)
     
+    def newGroupMessage(self, message, group_identifier):
+        all_destinations = self.routing_table.route_table.keys()
+        for destination in all_destinations:
+            packet = CommunicationMessage(message, str(destination), [self.own_ip], group_identifier)
+            self.sendMessage(packet,ip)
+    
     def sendMessage(self, messageObj:CommunicationMessage, ip):
         try:
             if(self.routing_table.hasDestination(ipaddress.ip_address(ip))):
@@ -104,7 +118,13 @@ class Main:
         except:
             print('\nError sending\n')
 
+    def joinGroup(self, group_identifier):
+        if not group_identifier is None and not group_identifier in self.groups:
+            self.groups.append(group_identifier)
 
+    def leaveGroup(self, group_identifier):
+        if not group_identifier is None and group_identifier in self.groups:
+            self.groups.remove(group_identifier)
     #starts a command loop from terminal input.
     # 1) Send message to another IP      sendto:192.168.0.10:this is my message
     # 2) Drop neighbor                   drop:192.168.0.5
@@ -118,10 +138,20 @@ class Main:
                 destination_ip = input("Enter destination: ")
                 message = input("Enter message: ")
                 self.newMessage(message, destination_ip)
+            if c == "sendgroup":
+                group_identifier = input("Enter group to send to: ")
+                message = input("Enter message: ")
+                self.newMessage(message, destination_ip)
             elif c == "drop":
                 pass
             elif c == "add":
                 pass
+            elif c == "joingroup":
+                group = input("What group would you like to join?: ")
+                self.joinGroup(group)
+            elif c == "leavegroup":
+                group = input("What group would you like to leave?: ")
+                self.joinGroup(group)
             elif c == "printroutes":
                 routeJson = routineTableToJson(self.routing_table.route_table.items(), self.own_ip)
                 print('\n\n\n',routeJson,'\n\n\n')
