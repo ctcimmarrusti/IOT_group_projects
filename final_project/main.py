@@ -194,6 +194,6 @@ class Main:
 
 main = Main()
 #gui = GUI_App()
-#gui.send_button.configure(command=send_message)
+#gui.send_button.configure(command=gui_send_message)
 #gui.mainloop()
 main.start()
