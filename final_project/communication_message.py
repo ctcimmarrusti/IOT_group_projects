@@ -2,11 +2,13 @@ import json
 
 class CommunicationMessage:
 
-    def __init__(self, message, destination_ip, path, group_identifier = None):
+    def __init__(self, message, destination_ip, path, group_identifier = None, dropsource = None, dropdest = None):
         self.destination_ip = destination_ip
         self.path = path 
         self.message = message
         self.group_identifier = group_identifier
+        self.dropsource = dropsource
+        self.dropdest = dropdest
 
     def getDestinationIp(self):
         return self.destination_ip

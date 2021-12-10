@@ -12,6 +12,7 @@ ROUTING_PORT_KEY = 'routing_port'
 COMMUNICATION_PORT_KEY = 'communication_port'
 OWN_IP_KEY = 'own_ip'
 DISPATCH_ROUTES_SECONDS = 5
+dropped_neighbors = []
 
 # Main logic and control script
 class Main:
@@ -81,6 +82,9 @@ class Main:
 
     def onCommunicationReceived(self, data, client):
         messageObj = loadCommunicationMessageFromJSON(data)
+        if not messageObj.dropdest is None:
+            self.routing_table.brokenConnection(messageObj.dropsource, messageObj.dropdest)
+            return
         if messageObj.destination_ip == self.own_ip:
             self.consumeMessage(messageObj.getMessage(), messageObj.getPath(), client, messageObj.getGroupIdentifier())
         else:
@@ -104,9 +108,15 @@ class Main:
     
     def newGroupMessage(self, message, group_identifier):
         all_destinations = self.routing_table.route_table.keys()
-        print('all_destinations', all_destinations)
         for destination in all_destinations:
             packet = CommunicationMessage(message, str(destination), [self.own_ip], group_identifier)
+            self.sendMessage(packet,str(destination))
+
+    def dropNeighbor(self, droppedIP):
+        self.routing_table.dropNeighbor(ipaddress.ip_address(droppedIP))
+        all_destinations = self.routing_table.route_table.keys()
+        for destination in all_destinations:
+            packet = CommunicationMessage(None, str(destination), [self.own_ip], None, self.own_ip, droppedIP)
             self.sendMessage(packet,str(destination))
     
     def sendMessage(self, messageObj:CommunicationMessage, ip):
@@ -143,10 +153,13 @@ class Main:
                 group_identifier = input("Enter group to send to: ")
                 message = input("Enter message: ")
                 self.newGroupMessage(message, group_identifier)
-            elif c == "drop":
-                pass
-            elif c == "add":
-                pass
+            elif c == "dropneighbor":
+                ip = input("Enter dropped neighbor")
+                dropped_neighbors.append(ip)
+                self.dropNeighbor(ip)
+            elif c == "restoreneighbor":
+                ip = input("Enter restored neighbor")
+                dropped_neighbors.remove(ip)
             elif c == "joingroup":
                 group = input("What group would you like to join?: ")
                 self.joinGroup(group)
