@@ -66,7 +66,7 @@ class Main:
         if not group_identifier is None and group_identifier in self.groups:
             print('\n\n','GROUP: ',group_identifier, '\n')
             print(message, '\n', 'Path: ', path, '\n\n')
-        else:
+        elif group_identifier is None:
             print('\n','FROM: ',client[0],': ', message, '\n', 'Path: ', path, '\n\n')
 
     #callback method for when routes are received from other nodes
