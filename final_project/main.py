@@ -81,8 +81,9 @@ class Main:
         messageObj = loadCommunicationMessageFromJSON(data)
         if messageObj.destination_ip == self.own_ip:
             self.consumeMessage(messageObj.getMessage(), messageObj.getPath(), client)
-        elif not messageObj.getGroupIdentifier() is None and messageObj.getGroupIdentifier() in self.groups:
-            self.consumeMessage(messageObj.getMessage(), messageObj.getPath(), client)
+        elif not messageObj.getGroupIdentifier() is None:
+            if messageObj.getGroupIdentifier() in self.groups:
+                self.consumeMessage(messageObj.getMessage(), messageObj.getPath(), client)
         else:
             if len(messageObj.getPath()) > 4:
                 print('\n Path getting too large\n')
@@ -104,9 +105,10 @@ class Main:
     
     def newGroupMessage(self, message, group_identifier):
         all_destinations = self.routing_table.route_table.keys()
+        print('all_destinations', all_destinations)
         for destination in all_destinations:
             packet = CommunicationMessage(message, str(destination), [self.own_ip], group_identifier)
-            self.sendMessage(packet,ip)
+            self.sendMessage(packet,str(destination))
     
     def sendMessage(self, messageObj:CommunicationMessage, ip):
         try:
@@ -115,8 +117,8 @@ class Main:
                 self.communication_server.sendMessage(str(route.nextHop()), self.communication_port, messageObj.toJSON())
             else:
                 print('\n Destination unavailble \n')
-        except:
-            print('\nError sending\n')
+        except Exception as e:
+            print('\nError sending:',e,'\n')
 
     def joinGroup(self, group_identifier):
         if not group_identifier is None and not group_identifier in self.groups:
@@ -141,7 +143,7 @@ class Main:
             if c == "sendgroup":
                 group_identifier = input("Enter group to send to: ")
                 message = input("Enter message: ")
-                self.newMessage(message, destination_ip)
+                self.newGroupMessage(message, group_identifier)
             elif c == "drop":
                 pass
             elif c == "add":
