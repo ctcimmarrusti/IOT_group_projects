@@ -6,6 +6,9 @@ from dc2 import Route, RoutingTable
 from routing_server import RouteDto, RoutingServer, loadRouteDtoArrFromJSON, routineTableToJson
 import json
 import time
+#from GUI_App import GUI_App
+from datetime import datetime
+import re
 
 CONFIG_FILE = 'init.json'
 ROUTING_PORT_KEY = 'routing_port'
@@ -172,7 +175,25 @@ class Main:
                 routeJson = routineTableToJson(self.routing_table.route_table.items(), self.own_ip)
                 print('\n\n\n',routeJson,'\n\n\n')
 
-
+#def gui_send_message(*args):
+#    global gui
+#    now = datetime.now()
+#    now = now.strftime("%d/%m/%Y %H:%M:%S")
+#    id_addr = gui.ip_entry_var.get()
+#    message = gui.message_entry.get("1.0", "end-1c")
+#    message_string = ""
+#
+#    if(re.match(r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b', id_addr) == None):
+#        message_string = "Invalid IP Address"
+#    elif(message == ""):
+#        message_string = "Message cannot be blank"
+#    else:
+#        message_string = "{0} - Sending Message - To[{1}] Message[{2}]".format(now, id_addr, message)
+#
+#    gui.append_output(message_string)
 
 main = Main()
+#gui = GUI_App()
+#gui.send_button.configure(command=send_message)
+#gui.mainloop()
 main.start()
