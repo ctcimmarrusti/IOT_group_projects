@@ -79,7 +79,8 @@ class Main:
             message_string += "\nFrom: "  + str(client[0])
             message_string += "\nMessage: " + str(message)
             message_string += '\nPath: ' + str(path)
-        self.print_message(message_string)
+        if message_string != "":
+            self.print_message(message_string)
     #callback method for when routes are received from other nodes
     def onRoutesReceived(self, data, client):
         if client[0] in dropped_neighbors:
