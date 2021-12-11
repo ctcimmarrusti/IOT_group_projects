@@ -72,7 +72,7 @@ class Main:
 
     # Choose to do with a message that was meant for self as destination node
     def consumeMessage(self, message, path, client, group_identifier = None):
-        message_string = "Message Recived"
+        message_string = ""
         if not group_identifier is None and group_identifier in self.groups:
             message_string = "Group " + message_string + "\nGroup: " + group_identifier
         elif group_identifier is None:
