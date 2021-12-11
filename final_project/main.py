@@ -11,6 +11,10 @@ from datetime import datetime
 import re
 import sys
 
+COMMAND_LINE_ONLY = False
+if(len(sys.argv) > 1 and sys.argv[1] == "c"):
+    COMMAND_LINE_ONLY = True
+
 CONFIG_FILE = 'init.json'
 ROUTING_PORT_KEY = 'routing_port'
 COMMUNICATION_PORT_KEY = 'communication_port'
@@ -182,7 +186,12 @@ class Main:
         datetime_string = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         # Ignore first param, first param is self
         message_string = " ".join(str(v) for v in args[1:])
-        gui.append_output("{0} - {1}".format(datetime_string, message_string))
+        message_string = "{0} - {1}".format(datetime_string, message_string)
+
+        if COMMAND_LINE_ONLY :
+            gui.append_output(message_string)
+        else:
+            print(message_string)
 
 def gui_send_message(*args):
     global gui, main
@@ -201,7 +210,11 @@ def gui_send_message(*args):
     
 
 main = Main()
-gui = GUI_App()
-gui.send_button.configure(command=gui_send_message)
-gui.mainloop()
-#main.start()
+gui = None
+
+if COMMAND_LINE_ONLY :
+    main.start()
+else:
+    gui = GUI_App()
+    gui.send_button.configure(command=gui_send_message)
+    gui.mainloop()
