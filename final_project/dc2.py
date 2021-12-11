@@ -153,18 +153,18 @@ class RoutingTable:
 		droppees = []
 		myip = self.my_ip
 		rt2ip = rt2.my_ip
-		print("my IP: " + str(myip))
-		print("rt2IP: " + str(rt2ip))
+		# print("my IP: " + str(myip))
+		# print("rt2IP: " + str(rt2ip))
 		for k, v in self.route_table.items():
 			if(v.path[0] == rt2ip):
 				if not rt2.hasDest(k):
 					droppees.append(k)
 		self.dropRouteToDest(k)
 		for v in rt2.route_table.values():
-			print("---------------------------------------")
-			print(v)
+			# print("---------------------------------------")
+			# print(v)
 			if v.dest == myip:
-				print("found me")
+				# print("found me")
 				continue
 			self.routeFromNeighbor(rt2ip, v)
 

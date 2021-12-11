@@ -77,8 +77,8 @@ class Main:
             message_string = "Group " + message_string + "\nGroup: " + group_identifier
         elif group_identifier is None:
             message_string += "\nFrom: "  + str(client[0])
-        message_string += "\nMessage: " + str(message)
-        message_string += '\nPath: ' + str(path)
+            message_string += "\nMessage: " + str(message)
+            message_string += '\nPath: ' + str(path)
         self.print_message(message_string)
     #callback method for when routes are received from other nodes
     def onRoutesReceived(self, data, client):
@@ -86,9 +86,11 @@ class Main:
             return
         self.routing_table.addNeighbor(ipaddress.ip_address(client[0])) # probably should check if the routing table has this neighbor first before adding
         routeArr = loadRouteDtoArrFromJSON(data)
+        neighbor_routing_table = RoutingTable(client[0])
         for route in routeArr:
-            r = Route(ipaddress.ip_address(route.destination_ip), [ipaddress.ip_address(client[0])] + route.path)
-            self.routing_table.routeFromNeighbor(ipaddress.ip_address(client[0]), r)
+            r = Route(ipaddress.ip_address(route.destination_ip), route.path)
+            neighbor_routing_table.addRoute(r)
+            self.routing_table.routingTableComparison(neighbor_routing_table)
 
         #if dropped node type, call drop_neighbor, else update routes. 
 
@@ -189,9 +191,9 @@ class Main:
         message_string = "{0} - {1}".format(datetime_string, message_string)
 
         if COMMAND_LINE_ONLY :
-            gui.append_output(message_string)
-        else:
             print(message_string)
+        else:
+            gui.append_output(message_string)
 
 def gui_send_message(*args):
     global gui, main
