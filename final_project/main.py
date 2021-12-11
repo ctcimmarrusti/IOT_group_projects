@@ -86,13 +86,10 @@ class Main:
             return
         self.routing_table.addNeighbor(ipaddress.ip_address(client[0])) # probably should check if the routing table has this neighbor first before adding
         routeArr = loadRouteDtoArrFromJSON(data)
-        neighbor_routing_table = RoutingTable(client[0])
         for route in routeArr:
-            r = Route(ipaddress.ip_address(route.destination_ip), route.path)
-            neighbor_routing_table.addRoute(r)
-            self.routing_table.routingTableComparison(neighbor_routing_table)
+            r = Route(ipaddress.ip_address(route.destination_ip), [ipaddress.ip_address(client[0])] + route.path)
+            self.routing_table.routeFromNeighbor(ipaddress.ip_address(client[0]), r)
 
-        #if dropped node type, call drop_neighbor, else update routes. 
 
     def onCommunicationReceived(self, data, client):
         messageObj = loadCommunicationMessageFromJSON(data)
