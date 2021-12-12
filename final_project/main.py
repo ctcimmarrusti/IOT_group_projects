@@ -74,9 +74,11 @@ class Main:
     def consumeMessage(self, message, path, client, group_identifier = None):
         message_string = ""
         if not group_identifier is None and group_identifier in self.groups:
-            message_string = "Group " + message_string + "\nGroup: " + group_identifier
+            message_string = "Group Message Received \nGroup: " + group_identifier
+            message_string += "\nMessage: " + str(message)
+            message_string += '\nPath: ' + str(path)
         elif group_identifier is None:
-            message_string += "\nFrom: "  + str(client[0])
+            message_string += "Message Received \nFrom: "  + str(client[0])
             message_string += "\nMessage: " + str(message)
             message_string += '\nPath: ' + str(path)
         if message_string != "":
@@ -196,7 +198,7 @@ class Main:
 def gui_send_message(*args):
     global gui, main
     
-    id_addr = gui.ip_entry_var.get()
+    id_addr = gui.ip_entry.get()
     message = gui.message_entry.get("1.0", "end-1c")
 
     if(re.match(r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b', id_addr) == None):
@@ -206,8 +208,35 @@ def gui_send_message(*args):
     else:
         main.print_message("Sending Message\nTo: {0}\nMessage: {1}".format(id_addr, message))
         main.newMessage(message, id_addr)
-
+def gui_send_group_message(*args):
+    global gui, main
     
+    group = gui.group_entry.get()
+    message = gui.group_message_entry.get("1.0", "end-1c")
+
+    if(group == ""):
+        main.print_message("Group ID cannot be blank")
+    elif(message == ""):
+        main.print_message("Message cannot be blank")
+    else:
+        main.print_message("Sending Group Message\nGroup: {0}\nMessage: {1}".format(group, message))
+        main.newGroupMessage(message, group)
+def gui_join_group(*args):
+    global gui, main
+    group = gui.group_membership_entry.get()
+    if(group == ""):
+        main.print_message("Group ID cannot be blank")
+    else:
+        main.print_message("Joining Group {0}".format(group))
+        main.joinGroup(group)
+def gui_leave_group(*args):
+    global gui, main
+    group = gui.group_membership_entry.get()
+    if(group == ""):
+        main.print_message("Group ID cannot be blank")
+    else:
+        main.print_message("Leaving Group {0}".format(group))
+        main.leaveGroup(group)
 
 main = Main()
 gui = None
@@ -217,4 +246,7 @@ if COMMAND_LINE_ONLY :
 else:
     gui = GUI_App()
     gui.send_button.configure(command=gui_send_message)
+    gui.send_group_message_button.configure(command=gui_send_group_message)
+    gui.join_group_button.configure(command=gui_join_group)
+    gui.leave_group_button.configure(command=gui_leave_group)
     gui.mainloop()
